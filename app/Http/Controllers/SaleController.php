@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 
 class SaleController extends Controller
 {
+    public function index()
+    {
+        $sales = Sale::with('customer', 'items.product')->latest('id')->paginate(10);
+
+        return view('sales', compact('sales'));
+    }
+
     public function addToCart($product_id)
     {
         $product = Product::find($product_id);
