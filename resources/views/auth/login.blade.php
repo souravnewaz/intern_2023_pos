@@ -21,7 +21,7 @@
         <label class="form-check-label" for="remembercheck">Remember me</label>
     </div>
     <button type="submit" class="btn btn-primary mb-3">Sign in</button>
-    <p>New here? <a href="/register">Signup</a></p> 
+    <!-- <p>New here? <a href="/register">Signup</a></p>  -->
 
     @include('flash-message')
 </form>

@@ -18,7 +18,7 @@ class HomeController extends Controller
             $products->where('name', 'LIKE', request()->get('product_name') . '%');
         }
 
-        $products = $products->get();
+        $products = $products->where('is_active', 1)->get();
 
         $sale = Sale::whereNull('paid_amount')->with('items.product')->first();
 
