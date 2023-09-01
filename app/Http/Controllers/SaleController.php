@@ -13,7 +13,14 @@ class SaleController extends Controller
     {
         $product = Product::find($product_id);
 
+        if($product->stock_in - $product->stock_out == 0) {
+            return redirect()->back()->with('error', 'Stock not available!');
+        }
+
         $sale = Sale::whereNull('paid_amount')->first();
+
+        $product->increment('stock_out');
+        $product->save();
 
         if($sale) {
 
@@ -54,9 +61,6 @@ class SaleController extends Controller
             'total_price' => $product->price,
         ]);
 
-        $product->increment('stock_out');
-        $product->save();
-
         return redirect()->back()->with('success', 'Added to cart successfully');
     }
 
@@ -72,6 +76,9 @@ class SaleController extends Controller
 
         $saleItem->delete();
 
+        $product->decrement('stock_out');
+        $product->save();
+
         return redirect()->back()->with('success', 'Removed from cart successfully');
     }
 
@@ -85,12 +92,19 @@ class SaleController extends Controller
 
         if($type == 'increment') {
 
+            if($saleItem->product->stock_in - $saleItem->product->stock_out == 0) {
+                return redirect()->back()->with('error', 'Stock not available!');
+            }
+
             $saleItem->quantity = $saleItem->quantity + 1;
             $saleItem->total_price = $saleItem->total_price + $saleItem->price;
             $saleItem->save();
 
             $sale->subtotal -= $saleItem->price;
             $sale->save();
+
+            $saleItem->product->increment('stock_out');
+            $saleItem->product->save();
 
             return redirect()->back()->with('success', 'Increment successful');
         }
@@ -115,6 +129,9 @@ class SaleController extends Controller
             else {
                 $sale->save();
             }
+
+            $saleItem->product->decrement('stock_out');
+            $saleItem->product->save();
         }
 
         return redirect()->back()->with('success', 'Removed from cart successfully');
